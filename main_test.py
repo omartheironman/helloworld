@@ -1,7 +1,8 @@
 import unittest
 from fastapi.testclient import TestClient
 from main import app
-from fastapi import FastAPI, HTTPException, status, Request
+from starlette import status
+
 
 
 class TestApp(unittest.TestCase):

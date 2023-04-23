@@ -10,8 +10,7 @@ from starlette.responses import RedirectResponse
 
 
 app = FastAPI()
-# ready = True
-
+app.state.ready = True
 redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = int(os.getenv("REDIS_PORT", "6379"))
 redis_client = redis.Redis(host=redis_host, port=redis_port)
@@ -62,12 +61,12 @@ def disable_readyz():
 @app.get("/env")
 def env():
     check_redis()
-    return dict(os.environ), status.HTTP_200_ACCEPTED
+    return dict(os.environ), status.HTTP_202_ACCEPTED
 
 @app.get("/headers")
 def headers(request: Request):
     check_redis()
-    return dict(request.headers), status.HTTP_200_ACCEPTED
+    return dict(request.headers), status.HTTP_202_ACCEPTED
 
 @app.get("/delay/{seconds}")
 async def delay(seconds: int):
@@ -90,7 +89,7 @@ async def get_cache(key: str):
     if value is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"code": 404, "message": "Key not found"})
 
-    return jsonable_encoder(value), status.HTTP_200_ACCEPTED
+    return jsonable_encoder(value)
 
 @app.delete("/cache/{key}")
 def delete_key(key: str):
@@ -100,10 +99,8 @@ def delete_key(key: str):
 
 @app.on_event("startup")
 async def startup_event():
-    app.state.ready = False  # Set ready to False initially
-    await asyncio.sleep(10)  # Add a delay to allow Redis service to start up properly
-    app.state.ready = True  # Set ready to True after the delay
-    
+    await asyncio.sleep(2)  # Add a delay to allow Redis service to start up properly
+    app.state.ready = True
     
 @app.get("/", include_in_schema=False)
 async def get():

@@ -1,0 +1,6 @@
+site_name: My Pod Info
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Swagger: swagger/index.html

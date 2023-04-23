@@ -77,16 +77,16 @@ jobs:
 
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
-        # with:
-        #   aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        #   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        #   aws-region: ${{ secrets.AWS_REGION }}
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Add EKS repository to Helm
-        # run: |
-        #   helm repo add eks https://aws.github.io/eks-charts
-        #   helm repo update
+        run: |
+          helm repo add eks https://aws.github.io/eks-charts
+          helm repo update
 
       - name: Deploy Helm chart
-        # run: |
-        #   helm upgrade --install --namespace nothernlabs pod-info pod-info
+        run: |
+          helm upgrade --install --namespace nothernlabs pod-info pod-info

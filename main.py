@@ -2,11 +2,10 @@ import asyncio
 from http import HTTPStatus
 import os
 import redis
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, status
 from typing import Dict
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import RedirectResponse
-from starlette import status
 
 
 

@@ -1,7 +1,7 @@
 import unittest
 from fastapi.testclient import TestClient
 from main import app
-from starlette import status
+from fastapi import  status
 
 
 

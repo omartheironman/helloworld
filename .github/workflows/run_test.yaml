@@ -87,7 +87,7 @@ jobs:
       #     helm repo add eks https://aws.github.io/eks-charts
       #     helm repo update
 
-      # - name: Deploy Helm chart
+      # - name: Deploy Helm chart Including Redis as well
       #   run: |
       #     helm upgrade --install --namespace nothernlabs pod-info pod-info
 

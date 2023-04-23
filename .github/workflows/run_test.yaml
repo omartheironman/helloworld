@@ -39,6 +39,7 @@ jobs:
       run: |
         pytest main_test.py
   build-and-push:
+    needs: [unit_test]
     runs-on: ubuntu-latest
 
     steps:

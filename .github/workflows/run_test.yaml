@@ -2,7 +2,7 @@ ame: Python application test
 
 on:
   push:
-     branches: '*'
+    branches: '*'
   pull_request:
     branches: [ main ]
 

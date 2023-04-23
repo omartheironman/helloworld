@@ -1,7 +1,8 @@
 import asyncio
+from http import HTTPStatus
 import os
 import redis
-from fastapi import FastAPI, HTTPException, status, Request
+from fastapi import FastAPI, HTTPException, Request
 from typing import Dict
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import RedirectResponse
@@ -67,7 +68,7 @@ def env():
 @app.get("/headers")
 def headers(request: Request):
     check_redis()
-    return dict(request.headers), HTTPStatus.OK
+    return dict(request.headers), status.HTTP_200_ACCEPTED
 
 @app.get("/delay/{seconds}")
 async def delay(seconds: int):

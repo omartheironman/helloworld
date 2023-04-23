@@ -3,3 +3,4 @@ redis
 uvicorn
 starlette
 pytest
+requests

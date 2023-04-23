@@ -15,13 +15,16 @@ port: 8000
 redis:
   host: "localhost"
   port: "6379"
-  
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+podLabels:
+  app: podinfo
 
-podAnnotations: {}
+
 
 podSecurityContext: {}
   # fsGroup: 2000

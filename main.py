@@ -99,8 +99,9 @@ def delete_key(key: str):
 
 @app.on_event("startup")
 async def startup_event():
-    ##await asyncio.sleep(10)  # Add a delay to allow Redis service to start up properly
-    app.state.ready = True
+    app.state.ready = False  # Set ready to False initially
+    await asyncio.sleep(10)  # Add a delay to allow Redis service to start up properly
+    app.state.ready = True  # Set ready to True after the delay
     
     
 @app.get("/", include_in_schema=False)

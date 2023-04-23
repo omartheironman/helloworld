@@ -47,7 +47,6 @@ Selector labels
 */}}
 {{- define "podinfo.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "podinfo.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*

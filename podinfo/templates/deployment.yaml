@@ -3,26 +3,21 @@ kind: Deployment
 metadata:
   name: {{ include "podinfo.fullname" . }}
   labels:
-    {{- include "podinfo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: podinfo
 spec:
-{{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-{{- end }}
   selector:
     matchLabels:
-      {{- include "podinfo.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: podinfo
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+      labels:
+        app.kubernetes.io/name: podinfo
     spec:
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
-        - containerPort: "{{ .Values.port }}"
+        - containerPort: {{ .Values.port }}
         env:
         - name: REDIS_HOST
           value: "{{ .Values.redis.host }}"
@@ -31,10 +26,12 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
+            port: http
           failureThreshold: 1
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /readyz
+            port: http
           failureThreshold: 1
           periodSeconds: 10

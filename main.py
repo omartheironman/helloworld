@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, status, Request
 from typing import Dict
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import RedirectResponse
+from starlette import status
 
 
 
@@ -66,7 +67,7 @@ def env():
 @app.get("/headers")
 def headers(request: Request):
     check_redis()
-    return dict(request.headers), status.HTTP_200_ACCEPTED
+    return dict(request.headers), HTTPStatus.OK
 
 @app.get("/delay/{seconds}")
 async def delay(seconds: int):

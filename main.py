@@ -37,7 +37,6 @@ def healthz():
 @app.get("/readyz")
 def readyz():
     check_redis()
-    print(app.state.ready)
     if not app.state.ready:
         return {"status": "not ready"}
     return {"status": "ready"}

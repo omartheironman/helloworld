@@ -22,7 +22,7 @@ class TestApp(unittest.TestCase):
 
     def test_disable_readyz(self):
         response = self.client.get("/readyz/disable")
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
 
     def test_env(self):
         response = self.client.get("/env")
@@ -34,20 +34,20 @@ class TestApp(unittest.TestCase):
 
     def test_delay(self):
         response = self.client.get("/delay/1")
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
 
     def test_cache(self):
         response = self.client.put("/cache/test_key", data=b"test_value")
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
         response = self.client.get("/cache/test_key")
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.text, b"test_value")
 
     def test_delete_key(self):
         response = self.client.put("/cache/test_key", data=b"test_value")
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
         response = self.client.delete("/cache/test_key")
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
         response = self.client.get("/cache/test_key")
         self.assertEqual(response.status_code, 404)
 

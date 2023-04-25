@@ -68,7 +68,7 @@ jobs:
   #       env:
   #         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   #         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  deploy_infra:
+  deployinfra:
     strategy:
       matrix:
         item: [us-central1, europe-west1, asia-east1] # replace with your map keys

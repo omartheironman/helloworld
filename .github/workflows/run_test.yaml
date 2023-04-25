@@ -20,15 +20,12 @@ jobs:
           --health-retries 3
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: 3.9
-    
-    - name: Install Redis
-      run: sudo apt-get install redis-server -y
     
     - name: Install dependencies
       run: |
@@ -44,7 +41,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
@@ -53,14 +50,14 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: false
           tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
 
       - name: Push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
@@ -68,12 +65,26 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  
+  deploy_infra:
+    needs: [unit_test, build-and-push]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+
   deploy:
     needs: [unit_test, build-and-push]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # - name: Setup AWS CLI
       #   uses: aws-actions/configure-aws-credentials@v1

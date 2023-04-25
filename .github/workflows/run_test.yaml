@@ -95,18 +95,20 @@ jobs:
         - name: Interact with Terragrunt
           run: terragrunt --version
 
-        # - name: 'Terragrunt Init'
-        #   run: terragrunt run-all init --terragrunt-non-interactive
-        #   working-directory: ${{ env.tf_working_dir }}
+        - name: 'Terragrunt Init'
+          run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all init --terragrunt-non-interactive
+          working-directory: ${{ env.tf_working_dir }}
 
         - name: 'Terragrunt Plan'
-          run: |
-            for item in "${{ matrix.item }}"; do
-              TF_VAR_region="$item"   terragrunt run-all init --terragrunt-non-interactive
-              wait $!
-              TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
-              wait $!
-            done
+          run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all plan --terragrunt-non-interactive
+
+          # run: |
+          #   for item in "${{ matrix.item }}"; do
+          #     TF_VAR_region="$item"   terragrunt run-all init --terragrunt-non-interactive
+          #     wait $!
+          #     TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
+          #     wait $!
+          #   done
           working-directory: ${{ env.tf_working_dir }}
 
   # deploy_infra:

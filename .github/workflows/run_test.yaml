@@ -124,7 +124,7 @@ jobs:
   #         working-directory: ${{ env.tf_working_dir }}
 
   deploy_infra:
-    # needs: [unit_test, build-and-push]
+    needs: [deployment_regions]
     runs-on: ubuntu-latest
     inputs:
       input_value: ${{ needs.deployment_regions.outputs.tg_region }}

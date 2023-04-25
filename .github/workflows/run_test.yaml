@@ -68,7 +68,15 @@ jobs:
   #       env:
   #         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   #         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  
+  deploy_infra:
+    strategy:
+      matrix:
+        item: [us-central1, europe-west1, asia-east1] # replace with your map keys
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step that runs for each item
+        run: echo ${{ matrix.item }} # replace with your command that uses the map key
+
   deploy_infra:
     # needs: [unit_test, build-and-push]
     runs-on: ubuntu-latest

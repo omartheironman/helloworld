@@ -68,50 +68,50 @@ jobs:
   #       env:
   #         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   #         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
- deployinfra:
-  strategy:
-    matrix:
-      item: [us-central1, europe-west1, asia-east1] # replace with your map keys
-  runs-on: ubuntu-latest
-  steps:
-    - uses: 'actions/checkout@v3'
+  deployinfra:
+    strategy:
+      matrix:
+        item: [us-central1, europe-west1, asia-east1] # replace with your map keys
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v3'
 
-    - id: 'auth'
-      name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v1'
-      with:
-        credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
 
-    - uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.0.0
-        terraform_wrapper: false
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+          terraform_wrapper: false
 
-    - name: Setup Terragrunt
-      uses: autero1/action-terragrunt@v1.1.0
-      with:
-        terragrunt_version: 0.37.1
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.1.0
+        with:
+          terragrunt_version: 0.37.1
 
-    - name: Interact with Terragrunt
-      run: terragrunt --version
+      - name: Interact with Terragrunt
+        run: terragrunt --version
 
-    - name: 'Terragrunt Init'
-      run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all init --terragrunt-non-interactive
-      working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Init'
+        run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all init --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
 
-    - name: 'Terragrunt Plan'
-      run: |
-        for item in "${{ matrix.item }}"; do
-          TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
-        done
-      working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Plan'
+        run: |
+          for item in "${{ matrix.item }}"; do
+            TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
+          done
+        working-directory: ${{ env.tf_working_dir }}
 
-    - name: 'Terragrunt Apply'
-      run: |
-        for item in "${{ matrix.item }}"; do
-          TF_VAR_region="$item" terragrunt run-all apply --terragrunt-non-interactive
-        done
-      working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Apply'
+        run: |
+          for item in "${{ matrix.item }}"; do
+            TF_VAR_region="$item" terragrunt run-all apply --terragrunt-non-interactive
+          done
+        working-directory: ${{ env.tf_working_dir }}
 
         # - name: 'Terragrunt Apply'
         #   run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all apply --terragrunt-non-interactive

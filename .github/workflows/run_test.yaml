@@ -103,6 +103,7 @@ jobs:
           run: |
             for item in "${{ matrix.item }}"; do
               TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
+            done
           working-directory: ${{ env.tf_working_dir }}
 
   # deploy_infra:

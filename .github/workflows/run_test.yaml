@@ -127,7 +127,7 @@ jobs:
     needs: [deployment_regions]
     runs-on: ubuntu-latest
     inputs:
-      input_value: ${{ needs.deployment_regions.outputs.tg_region }}
+      tg_region: ${{ needs.deployment_regions.outputs.tg_region }}
 
     steps:
       - uses: 'actions/checkout@v3'

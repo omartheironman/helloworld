@@ -5,8 +5,6 @@ on:
     branches: '*'
 
 env:
-  tf_version: 'latest'
-  tg_version: 'latest'
   tf_working_dir: './deploy/terragrunt'
 
 jobs:
@@ -82,36 +80,57 @@ jobs:
         uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+          terraform_wrapper: false
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.1.0
+        with:
+          terragrunt_version: 0.37.1
+
+      - name: Interact with Terragrunt
+        run: terragrunt --version
+
+      - name: 'Terragrunt Init'
+        run: terragrunt run-all init --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+      - name: 'Terragrunt Plan'
+        run: terragrunt run-all plan --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
       
-      - id: 'Init'
-        name: 'Terragrunt Init'
-        uses: the-commons-project/terragrunt-github-actions@master
-        with:
-          tf_actions_version: ${{ env.tf_version }}
-          tg_actions_version: ${{ env.tg_version }}
-          tf_actions_subcommand: 'init'
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: true
+      # - id: 'Init'
+      #   name: 'Terragrunt Init'
+      #   uses: the-commons-project/terragrunt-github-actions@master
+      #   with:
+      #     tf_actions_version: ${{ env.tf_version }}
+      #     tg_actions_version: ${{ env.tg_version }}
+      #     tf_actions_subcommand: 'init'
+      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
+      #     tf_actions_comment: true
 
-      - id: 'Validate'
-        name: 'Terragrunt Validate'
-        uses: the-commons-project/terragrunt-github-actions@master
-        with:
-          tf_actions_version: ${{ env.tf_version }}
-          tg_actions_version: ${{ env.tg_version }}
-          tf_actions_subcommand: 'validate'
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: true
+      # - id: 'Validate'
+      #   name: 'Terragrunt Validate'
+      #   uses: the-commons-project/terragrunt-github-actions@master
+      #   with:
+      #     tf_actions_version: ${{ env.tf_version }}
+      #     tg_actions_version: ${{ env.tg_version }}
+      #     tf_actions_subcommand: 'validate'
+      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
+      #     tf_actions_comment: true
 
-      - id: 'Plan'
-        name: 'Terragrunt Plan'
-        uses: the-commons-project/terragrunt-github-actions@master
-        with:
-          tf_actions_version: ${{ env.tf_version }}
-          tg_actions_version: ${{ env.tg_version }}
-          tf_actions_subcommand: 'run-all plan'
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: true
+      # - id: 'Plan'
+      #   name: 'Terragrunt Plan'
+      #   uses: the-commons-project/terragrunt-github-actions@master
+      #   with:
+      #     tf_actions_version: ${{ env.tf_version }}
+      #     tg_actions_version: ${{ env.tg_version }}
+      #     tf_actions_subcommand: 'run-all plan'
+      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
+      #     tf_actions_comment: true
 
 
 

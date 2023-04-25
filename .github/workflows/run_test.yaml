@@ -68,96 +68,80 @@ jobs:
   #       env:
   #         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   #         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-  deployment_regions:
+  deployinfra:
     strategy:
       matrix:
         item: [us-central1, europe-west1, asia-east1] # replace with your map keys
     runs-on: ubuntu-latest
     steps:
-      - name: First step
-        run: echo "Starting workflow"
-      - name: Run step for each item
-        run: |
-          for item in "${{ matrix.item }}"; do
-            tg_region="$item"
-            job_id="deploy_infra"
-            echo "::set-output name=job_id::$job_id"
-            echo "::set-output name=tg_region::$tg_region"
-          done
-      - name: Final step
-        run: echo "Workflow complete"
+        - uses: 'actions/checkout@v3'
 
-  # deployinfra:
-  #   strategy:
-  #     matrix:
-  #       item: [us-central1, europe-west1, asia-east1] # replace with your map keys
+        - id: 'auth'
+          name: 'Authenticate to Google Cloud'
+          uses: 'google-github-actions/auth@v1'
+          with:
+            credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+        - uses: hashicorp/setup-terraform@v2
+          with:
+            terraform_version: 1.0.0
+            terraform_wrapper: false
+
+        - name: Setup Terragrunt
+          uses: autero1/action-terragrunt@v1.1.0
+          with:
+            terragrunt_version: 0.37.1
+
+        - name: Interact with Terragrunt
+          run: terragrunt --version
+
+        - name: 'Terragrunt Init'
+          run: terragrunt run-all init --terragrunt-non-interactive
+          working-directory: ${{ env.tf_working_dir }}
+
+        - name: 'Terragrunt Plan'
+          run: |
+            for item in "${{ matrix.item }}"; do
+              echo "Deploying infra for $item"
+              TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
+
+              # Execute other steps here for each item
+              # ...
+          # run: terragrunt run-all plan TF_VAR_region=${{ matrix.item }} --terragrunt-non-interactive
+          working-directory: ${{ env.tf_working_dir }}
+
+  # deploy_infra:
+  #   # needs: [unit_test, build-and-push]
   #   runs-on: ubuntu-latest
   #   steps:
-  #       - uses: 'actions/checkout@v3'
+  #     - uses: 'actions/checkout@v3'
 
-  #       - id: 'auth'
-  #         name: 'Authenticate to Google Cloud'
-  #         uses: 'google-github-actions/auth@v1'
-  #         with:
-  #           credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+  #     - id: 'auth'
+  #       name: 'Authenticate to Google Cloud'
+  #       uses: 'google-github-actions/auth@v1'
+  #       with:
+  #         credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
 
-  #       - uses: hashicorp/setup-terraform@v2
-  #         with:
-  #           terraform_version: 1.0.0
-  #           terraform_wrapper: false
+  #     - uses: hashicorp/setup-terraform@v2
+  #       with:
+  #         terraform_version: 1.0.0
+  #         terraform_wrapper: false
 
-  #       - name: Setup Terragrunt
-  #         uses: autero1/action-terragrunt@v1.1.0
-  #         with:
-  #           terragrunt_version: 0.37.1
+  #     - name: Setup Terragrunt
+  #       uses: autero1/action-terragrunt@v1.1.0
+  #       with:
+  #         terragrunt_version: 0.37.1
 
-  #       - name: Interact with Terragrunt
-  #         run: terragrunt --version
+  #     - name: Interact with Terragrunt
+  #       run: terragrunt --version
 
-  #       - name: 'Terragrunt Init'
-  #         run: terragrunt run-all init --terragrunt-non-interactive
-  #         working-directory: ${{ env.tf_working_dir }}
+  #     - name: 'Terragrunt Init'
+  #       run: terragrunt run-all init --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
 
-  #       - name: 'Terragrunt Plan'
-  #         run: TF_VAR_region=${{ matrix.item }} terragrunt run-all plan  --terragrunt-non-interactive
-  #         working-directory: ${{ env.tf_working_dir }}
-
-  deploy_infra:
-    needs: [deployment_regions]
-    runs-on: ubuntu-latest
-    inputs:
-      tg_region: ${{ needs.deployment_regions.outputs.tg_region }}
-
-    steps:
-      - uses: 'actions/checkout@v3'
-
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
-
-      - uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.0.0
-          terraform_wrapper: false
-
-      - name: Setup Terragrunt
-        uses: autero1/action-terragrunt@v1.1.0
-        with:
-          terragrunt_version: 0.37.1
-
-      - name: Interact with Terragrunt
-        run: terragrunt --version
-
-      - name: 'Terragrunt Init'
-        run: terragrunt run-all init --terragrunt-non-interactive
-        working-directory: ${{ env.tf_working_dir }}
-
-      - name: 'Terragrunt Plan'
-        run: TF_VAR_region=${{ matrix.item }} terragrunt run-all plan --terragrunt-non-interactive
-        working-directory: ${{ env.tf_working_dir }}
+  #     - name: 'Terragrunt Plan'
+  #       run: terragrunt run-all plan --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
       
       # - id: 'Init'
       #   name: 'Terragrunt Init'

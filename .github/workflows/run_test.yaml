@@ -102,12 +102,7 @@ jobs:
         - name: 'Terragrunt Plan'
           run: |
             for item in "${{ matrix.item }}"; do
-              echo "Deploying infra for $item"
               TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
-
-              # Execute other steps here for each item
-              # ...
-          # run: terragrunt run-all plan TF_VAR_region=${{ matrix.item }} --terragrunt-non-interactive
           working-directory: ${{ env.tf_working_dir }}
 
   # deploy_infra:

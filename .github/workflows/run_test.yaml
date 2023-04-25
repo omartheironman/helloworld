@@ -80,8 +80,7 @@ jobs:
       - name: Run step for each item
         run: |
           for item in "${{ matrix.item }}"; do
-            echo "Running step for $item"
-            ;;
+            echo "Running step for $item";
           done
       - name: Final step
         run: echo "Workflow complete"

@@ -200,7 +200,7 @@ jobs:
       - name: Deploy
         uses: WyriHaximus/github-action-helm3@v3
         with:
-          exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --namespace=helloworld
+          exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --create-namespace --namespace=helloworld
           kubeconfig: '${{ secrets.USC1_KUBECONFIG }}'
 
     
@@ -225,7 +225,7 @@ jobs:
       - name: Deploy
         uses: WyriHaximus/github-action-helm3@v3
         with:
-          exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --namespace=helloworld
+          exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --create-namespace --namespace=helloworld
           kubeconfig: '${{ secrets.USC1_KUBECONFIG }}'
 
   # deployinfra:

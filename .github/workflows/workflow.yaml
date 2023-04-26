@@ -1,8 +1,8 @@
-name: Test
+name: Workflow
 
 on:
   push:
-    branches: '*'
+    branches: 'main'
 
 env:
   tf_working_dir: './deploy/terragrunt'
@@ -106,42 +106,42 @@ jobs:
         run: TF_VAR_region="us-central1" terragrunt run-all apply --terragrunt-non-interactive
         working-directory: ${{ env.tf_working_dir }}
 
-  deploy_infa_euw:
-    needs: [build-and-push]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: 'actions/checkout@v3'
+  # deploy_infa_euw:
+  #   needs: [build-and-push]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: 'actions/checkout@v3'
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+  #     - id: 'auth'
+  #       name: 'Authenticate to Google Cloud'
+  #       uses: 'google-github-actions/auth@v1'
+  #       with:
+  #         credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
 
-      - uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.0.0
-          terraform_wrapper: false
+  #     - uses: hashicorp/setup-terraform@v2
+  #       with:
+  #         terraform_version: 1.0.0
+  #         terraform_wrapper: false
 
-      - name: Setup Terragrunt
-        uses: autero1/action-terragrunt@v1.1.0
-        with:
-          terragrunt_version: 0.37.1
+  #     - name: Setup Terragrunt
+  #       uses: autero1/action-terragrunt@v1.1.0
+  #       with:
+  #         terragrunt_version: 0.37.1
 
-      - name: Interact with Terragrunt
-        run: terragrunt --version
+  #     - name: Interact with Terragrunt
+  #       run: terragrunt --version
 
-      - name: 'Terragrunt Init'
-        run: TF_VAR_region="europe-west1" terragrunt run-all init --terragrunt-non-interactive
-        working-directory: ${{ env.tf_working_dir }}
+  #     - name: 'Terragrunt Init'
+  #       run: TF_VAR_region="europe-west1" terragrunt run-all init --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
 
-      - name: 'Terragrunt Plan'
-        run: TF_VAR_region="europe-west1" terragrunt run-all plan --terragrunt-non-interactive
-        working-directory: ${{ env.tf_working_dir }}
+  #     - name: 'Terragrunt Plan'
+  #       run: TF_VAR_region="europe-west1" terragrunt run-all plan --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
 
-      - name: 'Terragrunt Plan'
-        run: TF_VAR_region="europe-west1" terragrunt run-all apply --terragrunt-non-interactive
-        working-directory: ${{ env.tf_working_dir }}
+  #     - name: 'Terragrunt Apply'
+  #       run: TF_VAR_region="europe-west1" terragrunt run-all apply --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
 
   
   deploy_infra_asia:
@@ -177,7 +177,7 @@ jobs:
         run: TF_VAR_region="asia-east1" terragrunt run-all plan --terragrunt-non-interactive
         working-directory: ${{ env.tf_working_dir }}
 
-      - name: 'Terragrunt Plan'
+      - name: 'Terragrunt Apply'
         run: TF_VAR_region="asia-east1" terragrunt run-all apply --terragrunt-non-interactive
         working-directory: ${{ env.tf_working_dir }}
 

@@ -1,3 +1,9 @@
+Asia region: http://34.120.79.0/docs
+USA region: http://34.111.97.238/docs
+Europe [removed it from my pipline as there seems to be an outtage with GCP]
+
+The ip addresses are auto generated and auto picked up by the pipeline
+
 # Overview
 
 This repo contains a simple application called helloworld. All it does is respond to an http request with "hello world!", the application is written using 

@@ -3,24 +3,8 @@
 This repo contains a simple application called helloworld. All it does is respond to an http request with "hello world!", the application is written using 
 fastAPI to be able to integrate swagger and schema definitions. 
 
-# Design method 
 
-* First implement the Infrastructure as code 
-  * we will need a cluster and for high availablity I chose different zones with different regions with auto scaling setup for the nodepools
-  * since each zone could have different configs, I decided to use terragrunt and since I want to have this fully independent on running it locally i will store my state in a backend bucket.
-  * we reserve a static IP for each cluster (planning to use it with CDN to maximize performance and latency)
-  * in an ideal scenario I would also add redis instances and maintain them in their own nodepool [to be discussed in next steps] but in my scenario it was fairly simple
-  
-* Setup our code CI/CD 
-  * use helm to configure our deployment 
-  * configure HPA [ was planning to use it with prometheus ] 
-  * configure kubernetes service to forward traffic to our deployment
-  * configure our ingress and pass our reserved static ip address
-  
-* Create a github action pipeline to tie all components together 
-  * special ServiceAccounts with limited access were created for the pipeline and all secrets stored in github action (this wouldn't be my first choice i would have opted for vault but for the sake of time I chose github action secrets)
-
-# Automation
+# Automation Tools
 
 ## This project uses the following automation tools:
 
@@ -32,6 +16,25 @@ fastAPI to be able to integrate swagger and schema definitions.
     * Deploy infrastructure changes
     * Deploy the application using Helm
 
+
+# Design method 
+
+## The idea is to heavily leverage automation
+
+* First implement the Infrastructure as code 
+  * we will need a cluster and for high availablity I chose different zones with different regions with auto scaling setup for the nodepools
+  * since each zone could have different configs, I decided to use terragrunt and since I want to have this fully independent on running it locally i will store my state in a backend bucket.
+  * we reserve a static IP for each cluster (planning to use it with CDN to maximize performance and latency)
+  * in an ideal scenario I would also add redis instances and maintain them in their own nodepool [to be discussed in next steps] but in my scenario it was fairly simple
+  
+* Setup our code CI/CD 
+  * use helm to configure our deployment
+  * configure HPA [ was planning to use it with prometheus ], I chose this incase id like to scale in the future based on load
+  * configure kubernetes service to forward traffic to our deployment
+  * configure our ingress and pass our reserved static ip address
+  
+* Create a github action pipeline to tie all components together 
+  * special ServiceAccounts with limited access were created for the pipeline and all secrets stored in github action (this wouldn't be my first choice i would have opted for vault but for the sake of time I chose github action secrets)
 
 Notes: I have a lot to discuss on how I could have improved on this especially with my pipeline for example using vault to push and fetch secrets instead or using multi workflow setup whereby each workflow is a different file. 
 
@@ -54,6 +57,7 @@ Notes: I have a lot to discuss on how I could have improved on this especially w
 
 * you may use the pipeline to execute the infra setup and app deployment 
 
+<img width="1227" alt="image" src="https://user-images.githubusercontent.com/58672497/234675702-03d80663-6d05-44fb-8134-18f4aab1f780.png">
 
 
 # High level Architecture 

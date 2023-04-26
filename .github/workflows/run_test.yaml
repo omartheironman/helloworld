@@ -93,9 +93,9 @@ jobs:
       - name: Interact with Terragrunt
         run: terragrunt --version
 
-      # - name: 'Terragrunt Init'
-      #   run: TF_VAR_region="us-central1" terragrunt run-all init --terragrunt-non-interactive
-      #   working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Init'
+        run: TF_VAR_region="us-central1" terragrunt run-all init --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
 
       - name: 'Terragrunt Plan'
         run: TF_VAR_region="us-central1" terragrunt run-all plan --terragrunt-non-interactive
@@ -106,7 +106,6 @@ jobs:
         working-directory: ${{ env.tf_working_dir }}
 
   deploy_euw:
-    needs: ["deploy_us"]
     runs-on: ubuntu-latest
     steps:
       - uses: 'actions/checkout@v3'
@@ -144,7 +143,6 @@ jobs:
 
   
   deploy_asia:
-    needs: ["deploy_euw"]
     runs-on: ubuntu-latest
     steps:
       - uses: 'actions/checkout@v3'

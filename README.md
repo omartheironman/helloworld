@@ -3,6 +3,17 @@
 This repo contains a simple application called helloworld. All it does is respond to an http request with "hello world!", the application is written using 
 fastAPI to be able to integrate swagger and schema definitions. 
 
+# Automation
+
+*** Terragrunt is used to configure terraform modules and store backend 
+*** Github Actions will execute:
+    1- Unit test
+    2- Build and Pubsish docker file
+    3- Deploy infrastructure change
+    4- Deploy the application using helm
+
+
+
 # High level Architecture 
 <img width="828" alt="image" src="https://user-images.githubusercontent.com/58672497/234667857-bb01d374-7689-4001-a70b-44a45039ed26.png">
 

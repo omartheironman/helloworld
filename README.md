@@ -4,6 +4,9 @@ Europe [removed it from my pipline as there seems to be an outtage with GCP]
 
 The ip addresses are auto generated and auto picked up by the pipeline
 
+Notes: I have a lot to discuss on how I could have improved on this especially with my pipeline for example using vault to push and fetch secrets instead or using multi workflow setup whereby each workflow is a different file, additionally im well aware that my nodes are over provisioned I would ideally use smaller nodes but I ran out of time. (perhaps we could run this together with the team to test the pipeline!)
+
+
 # Overview
 
 This repo contains a simple application called helloworld. All it does is respond to an http request with "hello world!", the application is written using 
@@ -41,8 +44,6 @@ fastAPI to be able to integrate swagger and schema definitions.
   
 * Create a github action pipeline to tie all components together 
   * special ServiceAccounts with limited access were created for the pipeline and all secrets stored in github action (this wouldn't be my first choice i would have opted for vault but for the sake of time I chose github action secrets)
-
-Notes: I have a lot to discuss on how I could have improved on this especially with my pipeline for example using vault to push and fetch secrets instead or using multi workflow setup whereby each workflow is a different file. 
 
 
 # Executions

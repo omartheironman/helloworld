@@ -8,68 +8,69 @@ env:
   tf_working_dir: './deploy/terragrunt'
 
 jobs:
-  # unit_test:
-  #   runs-on: ubuntu-latest
+  unit_test:
+    runs-on: ubuntu-latest
 
-  #   services:
-  #     redis:
-  #       image: redis
-  #       ports:
-  #         - 6379:6379
-  #       options: >-
-  #         --health-cmd "redis-cli ping"
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 3
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v3
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: 3.9
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
     
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
     
-  #   - name: Run tests
-  #     run: |
-  #       pytest main_test.py
-  # build-and-push:
-  #   needs: [unit_test]
-  #   runs-on: ubuntu-latest
+    - name: Run tests
+      run: |
+        pytest main_test.py
+  build-and-push:
+    needs: [unit_test]
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v1
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Build Docker image
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         context: .
-  #         push: false
-  #         tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
+      - name: Build Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
 
-  #     - name: Push Docker image
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         context: .
-  #         push: true
-  #         tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
-  #       env:
-  #         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  #         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   deploy_infra_us:
+    needs: [build-and-push]
     runs-on: ubuntu-latest
     steps:
       - uses: 'actions/checkout@v3'
@@ -105,44 +106,46 @@ jobs:
         run: TF_VAR_region="us-central1" terragrunt run-all apply --terragrunt-non-interactive
         working-directory: ${{ env.tf_working_dir }}
 
-  # deploy_infa_euw:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: 'actions/checkout@v3'
+  deploy_infa_euw:
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v3'
 
-  #     - id: 'auth'
-  #       name: 'Authenticate to Google Cloud'
-  #       uses: 'google-github-actions/auth@v1'
-  #       with:
-  #         credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
 
-  #     - uses: hashicorp/setup-terraform@v2
-  #       with:
-  #         terraform_version: 1.0.0
-  #         terraform_wrapper: false
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+          terraform_wrapper: false
 
-  #     - name: Setup Terragrunt
-  #       uses: autero1/action-terragrunt@v1.1.0
-  #       with:
-  #         terragrunt_version: 0.37.1
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.1.0
+        with:
+          terragrunt_version: 0.37.1
 
-  #     - name: Interact with Terragrunt
-  #       run: terragrunt --version
+      - name: Interact with Terragrunt
+        run: terragrunt --version
 
-  #     - name: 'Terragrunt Init'
-  #       run: TF_VAR_region="europe-west1" terragrunt run-all init --terragrunt-non-interactive
-  #       working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Init'
+        run: TF_VAR_region="europe-west1" terragrunt run-all init --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
 
-  #     - name: 'Terragrunt Plan'
-  #       run: TF_VAR_region="europe-west1" terragrunt run-all plan --terragrunt-non-interactive
-  #       working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Plan'
+        run: TF_VAR_region="europe-west1" terragrunt run-all plan --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
 
-  #     - name: 'Terragrunt Plan'
-  #       run: TF_VAR_region="europe-west1" terragrunt run-all apply --terragrunt-non-interactive
-  #       working-directory: ${{ env.tf_working_dir }}
+      - name: 'Terragrunt Plan'
+        run: TF_VAR_region="europe-west1" terragrunt run-all apply --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
 
   
   deploy_infra_asia:
+    needs: [build-and-push]
     runs-on: ubuntu-latest
     steps:
       - uses: 'actions/checkout@v3'
@@ -228,140 +231,5 @@ jobs:
           exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --create-namespace --namespace=helloworld --set ingress.annotations."kubernetes\.io/ingress\.global-static-ip-name"=as-ip-address
           kubeconfig: '${{ secrets.USC1_KUBECONFIG }}'
 
-  # deployinfra:
-  #   strategy:
-  #     matrix:
-  #       item: [us-central1, europe-west1, asia-east1] # replace with your map keys
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: 'actions/checkout@v3'
 
-  #     - id: 'auth'
-  #       name: 'Authenticate to Google Cloud'
-  #       uses: 'google-github-actions/auth@v1'
-  #       with:
-  #         credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
-
-  #     - uses: hashicorp/setup-terraform@v2
-  #       with:
-  #         terraform_version: 1.0.0
-  #         terraform_wrapper: false
-
-  #     - name: Setup Terragrunt
-  #       uses: autero1/action-terragrunt@v1.1.0
-  #       with:
-  #         terragrunt_version: 0.37.1
-
-  #     - name: Interact with Terragrunt
-  #       run: terragrunt --version
-
-  #     - name: 'Terragrunt Init'
-  #       run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all init --terragrunt-non-interactive
-  #       working-directory: ${{ env.tf_working_dir }}
-
-  #     - name: 'Terragrunt Plan'
-  #       run: |
-  #         for item in "${{ matrix.item }}"; do
-  #           TF_VAR_region="$item" terragrunt run-all plan --terragrunt-non-interactive
-  #         done
-  #       working-directory: ${{ env.tf_working_dir }}
-
-  #     - name: 'Terragrunt Apply'
-  #       run: |
-  #         for item in "${{ matrix.item }}"; do
-  #           TF_VAR_region="$item" terragrunt run-all apply --terragrunt-non-interactive
-  #         done
-  #       working-directory: ${{ env.tf_working_dir }}
-
-  #       # - name: 'Terragrunt Apply'
-  #       #   run: TF_VAR_region="${{ matrix.item }}" terragrunt run-all apply --terragrunt-non-interactive
-  #       #   working-directory: ${{ env.tf_working_dir }}
-
-  # deploy_infra:
-  #   # needs: [unit_test, build-and-push]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: 'actions/checkout@v3'
-
-  #     - id: 'auth'
-  #       name: 'Authenticate to Google Cloud'
-  #       uses: 'google-github-actions/auth@v1'
-  #       with:
-  #         credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
-
-  #     - uses: hashicorp/setup-terraform@v2
-  #       with:
-  #         terraform_version: 1.0.0
-  #         terraform_wrapper: false
-
-  #     - name: Setup Terragrunt
-  #       uses: autero1/action-terragrunt@v1.1.0
-  #       with:
-  #         terragrunt_version: 0.37.1
-
-  #     - name: Interact with Terragrunt
-  #       run: terragrunt --version
-
-  #     - name: 'Terragrunt Init'
-  #       run: terragrunt run-all init --terragrunt-non-interactive
-  #       working-directory: ${{ env.tf_working_dir }}
-
-  #     - name: 'Terragrunt Plan'
-  #       run: terragrunt run-all plan --terragrunt-non-interactive
-  #       working-directory: ${{ env.tf_working_dir }}
-      
-      # - id: 'Init'
-      #   name: 'Terragrunt Init'
-      #   uses: the-commons-project/terragrunt-github-actions@master
-      #   with:
-      #     tf_actions_version: ${{ env.tf_version }}
-      #     tg_actions_version: ${{ env.tg_version }}
-      #     tf_actions_subcommand: 'init'
-      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
-      #     tf_actions_comment: true
-
-      # - id: 'Validate'
-      #   name: 'Terragrunt Validate'
-      #   uses: the-commons-project/terragrunt-github-actions@master
-      #   with:
-      #     tf_actions_version: ${{ env.tf_version }}
-      #     tg_actions_version: ${{ env.tg_version }}
-      #     tf_actions_subcommand: 'validate'
-      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
-      #     tf_actions_comment: true
-
-      # - id: 'Plan'
-      #   name: 'Terragrunt Plan'
-      #   uses: the-commons-project/terragrunt-github-actions@master
-      #   with:
-      #     tf_actions_version: ${{ env.tf_version }}
-      #     tg_actions_version: ${{ env.tg_version }}
-      #     tf_actions_subcommand: 'run-all plan'
-      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
-      #     tf_actions_comment: true
-
-
-
-  deploy:
-    # needs: [unit_test, build-and-push]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # - name: Setup AWS CLI
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
-
-      # - name: Add EKS repository to Helm
-      #   run: |
-      #     helm repo add eks https://aws.github.io/eks-charts
-      #     helm repo update
-
-      # - name: Deploy Helm chart Including Redis as well
-      #   run: |
-      #     helm upgrade --install --namespace nothernlabs pod-info pod-info
 

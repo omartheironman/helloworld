@@ -1,0 +1,235 @@
+name: Workflow
+
+on:
+  push:
+    branches: 'main'
+
+env:
+  tf_working_dir: './deploy/terragrunt'
+
+jobs:
+  unit_test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        pytest main_test.py
+  build-and-push:
+    needs: [unit_test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
+
+      - name: Push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/podinfo:latest
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  deploy_infra_us:
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+          terraform_wrapper: false
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.1.0
+        with:
+          terragrunt_version: 0.37.1
+
+      - name: Interact with Terragrunt
+        run: terragrunt --version
+
+      - name: 'Terragrunt Init'
+        run: TF_VAR_region="us-central1" terragrunt run-all init --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+      - name: 'Terragrunt Plan'
+        run: TF_VAR_region="us-central1" terragrunt run-all plan --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+      - name: 'Terragrunt Apply'
+        run: TF_VAR_region="us-central1" terragrunt run-all apply --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+  # deploy_infa_euw:
+  #   needs: [build-and-push]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: 'actions/checkout@v3'
+
+  #     - id: 'auth'
+  #       name: 'Authenticate to Google Cloud'
+  #       uses: 'google-github-actions/auth@v1'
+  #       with:
+  #         credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+  #     - uses: hashicorp/setup-terraform@v2
+  #       with:
+  #         terraform_version: 1.0.0
+  #         terraform_wrapper: false
+
+  #     - name: Setup Terragrunt
+  #       uses: autero1/action-terragrunt@v1.1.0
+  #       with:
+  #         terragrunt_version: 0.37.1
+
+  #     - name: Interact with Terragrunt
+  #       run: terragrunt --version
+
+  #     - name: 'Terragrunt Init'
+  #       run: TF_VAR_region="europe-west1" terragrunt run-all init --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
+
+  #     - name: 'Terragrunt Plan'
+  #       run: TF_VAR_region="europe-west1" terragrunt run-all plan --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
+
+  #     - name: 'Terragrunt Apply'
+  #       run: TF_VAR_region="europe-west1" terragrunt run-all apply --terragrunt-non-interactive
+  #       working-directory: ${{ env.tf_working_dir }}
+
+  
+  deploy_infra_asia:
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+          terraform_wrapper: false
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.1.0
+        with:
+          terragrunt_version: 0.37.1
+
+      - name: Interact with Terragrunt
+        run: terragrunt --version
+
+      - name: 'Terragrunt Init'
+        run: TF_VAR_region="asia-east1" terragrunt run-all init --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+      - name: 'Terragrunt Plan'
+        run: TF_VAR_region="asia-east1" terragrunt run-all plan --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+      - name: 'Terragrunt Apply'
+        run: TF_VAR_region="asia-east1" terragrunt run-all apply --terragrunt-non-interactive
+        working-directory: ${{ env.tf_working_dir }}
+
+
+  deploy_app_usa:
+    needs: ["deploy_infra_us"]
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+      - id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: 'helloworld-cluster-usc'
+          location: 'us-central1'
+
+      - name: Deploy
+        uses: WyriHaximus/github-action-helm3@v3
+        with:
+          exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --create-namespace --namespace=helloworld --set ingress.annotations."kubernetes\.io/ingress\.global-static-ip-name"=us-ip-address
+          kubeconfig: '${{ secrets.USC1_KUBECONFIG }}'
+
+    
+  deploy_app_asia:
+    needs: ["deploy_infra_asia"]
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
+
+      - id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: 'helloworld-cluster-asia'
+          location: 'asia-east1'
+
+      - name: Deploy
+        uses: WyriHaximus/github-action-helm3@v3
+        with:
+          exec: helm upgrade helloworld ./deploy/application/helloworld --install --wait --atomic --create-namespace --namespace=helloworld --set ingress.annotations."kubernetes\.io/ingress\.global-static-ip-name"=as-ip-address
+          kubeconfig: '${{ secrets.USC1_KUBECONFIG }}'
+
+
+

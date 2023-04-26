@@ -7,6 +7,7 @@ fastAPI to be able to integrate swagger and schema definitions.
 
 * First implement the Infrastructure as code 
   * we will need a cluster and for high availablity I chose different zones with different regions with auto scaling setup for the nodepools
+  * since each zone could have different configs, I decided to use terragrunt and since I want to have this fully independent on running it locally i will store my state in a backend bucket.
   * we reserve a static IP for each cluster (planning to use it with CDN to maximize performance and latency)
   * in an ideal scenario I would also add redis instances and maintain them in their own nodepool [to be discussed in next steps] but in my scenario it was fairly simple
   

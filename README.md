@@ -33,7 +33,7 @@ fastAPI to be able to integrate swagger and schema definitions.
 * First implement the Infrastructure as code 
   * we will need a cluster and for high availablity I chose different zones with different regions with auto scaling setup for the nodepools
   * since each zone could have different configs, I decided to use terragrunt and since I want to have this fully independent on running it locally i will store my state in a backend bucket.
-  * we reserve a static IP for each cluster (If we end up using a CDN we can just use one)
+  * we reserve a static IP for each cluster (The idea is to plan using this with CDN / Route53 ) 
   * in an ideal scenario I would also add redis instances and maintain them in their own nodepool [to be discussed in next steps] but in my scenario it was fairly simple
   
 * Setup our code CI/CD 
@@ -68,7 +68,8 @@ fastAPI to be able to integrate swagger and schema definitions.
 
 
 # High level Architecture 
-<img width="828" alt="image" src="https://user-images.githubusercontent.com/58672497/234667857-bb01d374-7689-4001-a70b-44a45039ed26.png">
+<img width="1085" alt="image" src="https://user-images.githubusercontent.com/58672497/234702379-33c7c3a8-fcdd-4584-8d13-b7ac0431387e.png">
+
 
 There are 3 main cluster located in USA, Asia and Europe. The helm chart is configured to support HPA incase of highload. I could have added redis and prometheus
 but I couldn't get a response in time so I just proceeded forward with my current design. 

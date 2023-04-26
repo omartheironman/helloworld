@@ -184,6 +184,12 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - uses: actions/checkout@v3
+      
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_AUTH_CREDS }}'
       - name: Deploy
         uses: WyriHaximus/github-action-helm3@v3
         with:

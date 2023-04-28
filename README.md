@@ -51,13 +51,22 @@ fastAPI to be able to integrate swagger and schema definitions.
 ## Locally 
 
 * Pre-requisites 
-  * ensure you have latest version of terraform
-  * ensure you have latest version of terragrunt 
+  * Ensure you have latest version of terraform
+  * Ensure you have latest version of terragrunt 
+  * Make sure you authenticate to the gcp project ```mythic-ego-384814``` ( I'll need to grant access ) 
+  
+### Deploy Infra 
   * navigate to the /deploy/terragrunt
   * run ```terragrunt plan-all``` 
   * you should see the plan of what will execute 
   * run ``` terragrunt run-all apply``` to apply the changes 
   * Note: by default the input will come default.tf vars if you dont specify the region TF_VAR_region for example if you want to execute the command agains the us-central1 region your terragrunt command should be ```TF_VAR_region="us-central1" terragrunt run-all apply --terragrunt-non-interactive ``` this will pick up any variables defined in us-centea1l.tfvars under terragrunt/gke/
+
+### Deploy App 
+  * navigate to the /deploy/application
+  * run ```helm upgrade helloworld /helloworld --install --wait --atomic --create-namespace --namespace=helloworld --set ingress.annotations."kubernetes\.io/ingress\.global-static-ip-name"=us-ip-address``` 
+
+  * Note: I would set the ingress annotation to use the ip address in a dedicated yaml file.
 
 
 # Pipeline

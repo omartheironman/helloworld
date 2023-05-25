@@ -11,7 +11,7 @@ app = FastAPI()
 
 @app.get("/hello")
 def get_hello_world():
-    return "Hello World!"
+    return "Hello Radwa! FROM OMAR (I mean babe) hehee shhhh"
 
     
 @app.get("/", include_in_schema=False)

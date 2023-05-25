@@ -11,7 +11,7 @@ class TestApp(unittest.TestCase):
     def test_hello(self):
         response = self.client.get("/hello")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.text, '"Hello Radwa! FROM OMAR (I mean babe) hehee shhhh"')
+        self.assertEqual(response.text, '"Hello from OMAAR"')
 
 if __name__ == '__main__':
     unittest.main()
